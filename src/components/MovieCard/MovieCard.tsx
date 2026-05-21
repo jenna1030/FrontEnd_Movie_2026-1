@@ -1,4 +1,5 @@
 import starIcon from '../../assets/star-icon.svg'
+import { IMAGE_BASE_URL } from '../../constants/movie'
 import type { Movie } from '../../types/movie'
 import './MovieCard.css'
 
@@ -9,18 +10,18 @@ interface MovieCardProps {
 function MovieCard({ movie }: MovieCardProps) {
   return (
     <div className="movie-card" data-movie-id={movie.id}>
-      {/* TODO 4. 영화 포스터 이미지를 렌더링하세요. */}
-      {/* 힌트: className은 "movie-card-poster"입니다. */}
-      {/* 힌트: src는 IMAGE_BASE_URL + movie.poster_path 입니다. */}
-      {/* 힌트: alt는 movie.title을 사용하세요. */}
+      <img
+        className="movie-card-poster"
+        src={IMAGE_BASE_URL + movie.poster_path}
+        alt={movie.title}
+      />
 
-      {/* TODO 2. 영화 제목을 렌더링하세요. */}
-      {/* 힌트: className은 "movie-card-title"입니다. */}
+      <h3 className="movie-card-title">{movie.title}</h3>
 
       <div className="movie-card-rating">
-        {/* TODO 3. 평점을 소수점 한 자리까지 렌더링하세요. */}
-        {/* 힌트: movie.vote_average.toFixed(1) */}
-        {/* 힌트: className은 "movie-card-rating-value"입니다. */}
+        <span className="movie-card-rating-value">
+          {movie.vote_average.toFixed(1)}
+        </span>
 
         <img className="movie-card-star" src={starIcon} alt="별점" />
       </div>
