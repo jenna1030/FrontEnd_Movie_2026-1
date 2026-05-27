@@ -1,3 +1,4 @@
+import { useState } from "react";
 import starIcon from "../../assets/star-icon.svg";
 import { IMAGE_BASE_URL } from "../../constants/movie";
 import type { MovieDetail } from "../../types/movie";
@@ -9,11 +10,22 @@ interface MovieModalProps {
 }
 
 function MovieModal({ movie, onClose }: MovieModalProps) {
+  // 모달 구현 추가: 사용자가 선택한 내 별점을 기억합니다. 처음에는 아직 선택 전이라 0입니다.
+  const [userRating, setUserRating] = useState(0);
+
   // 모달 구현 추가: 상세 API의 genres 배열을 화면에 보여줄 문자열로 바꿉니다.
   const genreText = movie.genres.map((genre) => genre.name).join(", ");
   const posterSrc = movie.poster_path
     ? IMAGE_BASE_URL + movie.poster_path
     : "/favicon.svg";
+  const ratingMessage =
+    userRating === 0
+      ? "평가해주세요"
+      : `${userRating * 2} ${
+          ["", "별로예요", "아쉬워요", "보통이에요", "좋아요", "최고예요"][
+            userRating
+          ]
+        }`;
 
   return (
     <div className="movie-modal-backdrop">
@@ -46,8 +58,20 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
 
             <div className="movie-modal-rating-box">
               <span>내 별점</span>
-              <span className="movie-modal-stars">★★★☆☆</span>
-              <span>6 보통이에요</span>
+              <div className="movie-modal-stars" aria-label="내 별점 선택">
+                {[1, 2, 3, 4, 5].map((starNumber) => (
+                  <button
+                    key={starNumber}
+                    className="movie-modal-star-button"
+                    type="button"
+                    onClick={() => setUserRating(starNumber)}
+                    aria-label={`${starNumber * 2}점`}
+                  >
+                    {starNumber <= userRating ? "★" : "☆"}
+                  </button>
+                ))}
+              </div>
+              <span>{ratingMessage}</span>
             </div>
           </div>
         </div>
