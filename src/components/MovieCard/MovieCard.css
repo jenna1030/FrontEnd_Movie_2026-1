@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* 모달 구현 추가: 카드가 클릭 가능하다는 것을 보여줍니다. */
+  cursor: pointer;
 }
 
 .movie-card-poster {

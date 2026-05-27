@@ -1,19 +1,36 @@
+import type { FormEvent } from "react";
 import logoImg from "../../assets/Logo.png";
 import "./Header.css";
-import React, { useState } from "react";
+
 interface HeaderProps {
-  onSearch: (keyword: string) => void;
+  // 기존 검색 방식과 새 검색 방식을 둘 다 받을 수 있게 optional로 둡니다.
+  onSearch?: (keyword: string) => void;
+  // 모달 구현 추가: 현재 App.tsx에서 내려주는 검색창 값입니다.
+  searchValue?: string;
+  // 모달 구현 추가: 검색창 입력값이 바뀔 때 App state를 바꿉니다.
+  onSearchValueChange?: (value: string) => void;
+  // 모달 구현 추가: 검색 form 제출 시 App의 검색 함수를 실행합니다.
+  onSearchSubmit?: () => void;
 }
 
-function Header({ onSearch }: HeaderProps) {
-  const [keyword, setKeyword] = useState("");
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+function Header({
+  onSearch,
+  searchValue = "",
+  onSearchValueChange,
+  onSearchSubmit,
+}: HeaderProps) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-    if (keyword.trim() === "") return;
+    if (onSearchSubmit) {
+      onSearchSubmit();
+      return;
+    }
 
-    onSearch(keyword);
-  };
+    if (searchValue.trim() === "") return;
+    onSearch?.(searchValue);
+  }
+
   return (
     <header className="header">
       <img src={logoImg} alt="Movie Beginner Logo" />
@@ -21,10 +38,10 @@ function Header({ onSearch }: HeaderProps) {
         <input
           type="text"
           placeholder="검색"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          value={searchValue}
+          onChange={(event) => onSearchValueChange?.(event.target.value)}
         />
-        <button type="submit" className="search-btn">
+        <button type="submit" className="search-btn" aria-label="검색">
           <svg
             width="20"
             height="20"
@@ -35,9 +52,9 @@ function Header({ onSearch }: HeaderProps) {
             <path
               d="M19 19L14.65 14.65M17 9C17 13.4183 13.4183 17 9 17C4.58172 17 1 13.4183 1 9C1 4.58172 4.58172 1 9 1C13.4183 1 17 4.58172 17 9Z"
               stroke="#101828"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </button>

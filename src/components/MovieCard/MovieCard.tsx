@@ -5,16 +5,18 @@ import "./MovieCard.css";
 
 interface MovieCardProps {
   movie: Movie;
+  // 모달 구현 추가: MovieList에서 내려준 클릭 함수를 카드 전체에 연결합니다.
+  onClick?: () => void;
 }
 
-function MovieCard({ movie }: MovieCardProps) {
+function MovieCard({ movie, onClick }: MovieCardProps) {
+  const posterSrc = movie.poster_path
+    ? IMAGE_BASE_URL + movie.poster_path
+    : "/favicon.svg";
+
   return (
-    <div className="movie-card" data-movie-id={movie.id}>
-      <img
-        className="movie-card-poster"
-        src={IMAGE_BASE_URL + movie.poster_path}
-        alt={movie.title}
-      />
+    <div className="movie-card" data-movie-id={movie.id} onClick={onClick}>
+      <img className="movie-card-poster" src={posterSrc} alt={movie.title} />
 
       <h3 className="movie-card-title">{movie.title}</h3>
 
