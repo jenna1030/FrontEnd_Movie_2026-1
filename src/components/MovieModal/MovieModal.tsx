@@ -1,4 +1,6 @@
 import { useState } from "react";
+import heartFilledIcon from "../../assets/heart-filled.svg";
+import heartOutlineIcon from "../../assets/heart-outline.svg";
 import starIcon from "../../assets/star-icon.svg";
 import { IMAGE_BASE_URL } from "../../constants/movie";
 import type { MovieDetail } from "../../types/movie";
@@ -12,6 +14,8 @@ interface MovieModalProps {
 function MovieModal({ movie, onClose }: MovieModalProps) {
   // 모달 구현 추가: 사용자가 선택한 내 별점을 기억합니다. 처음에는 아직 선택 전이라 0입니다.
   const [userRating, setUserRating] = useState(0);
+  // 찜 기능 추가: 하트 버튼을 눌렀는지 기억합니다. 새로고침하면 초기화되는 간단한 state입니다.
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // 모달 구현 추가: 상세 API의 genres 배열을 화면에 보여줄 문자열로 바꿉니다.
   const genreText = movie.genres.map((genre) => genre.name).join(", ");
@@ -46,11 +50,25 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
           <img className="movie-modal-poster" src={posterSrc} alt={movie.title} />
 
           <div className="movie-modal-info">
-            <p className="movie-modal-meta">
-              {genreText}
-              <img src={starIcon} alt="별점" />
-              <span>{movie.vote_average.toFixed(1)}</span>
-            </p>
+            <div className="movie-modal-top-line">
+              <p className="movie-modal-meta">
+                {genreText}
+                <img src={starIcon} alt="별점" />
+                <span>{movie.vote_average.toFixed(1)}</span>
+              </p>
+
+              <button
+                className="movie-modal-favorite"
+                type="button"
+                onClick={() => setIsFavorite((prevIsFavorite) => !prevIsFavorite)}
+                aria-label={isFavorite ? "찜 취소" : "찜하기"}
+              >
+                <img
+                  src={isFavorite ? heartFilledIcon : heartOutlineIcon}
+                  alt=""
+                />
+              </button>
+            </div>
 
             <p className="movie-modal-overview">
               {movie.overview || "영화 소개가 아직 없습니다."}
