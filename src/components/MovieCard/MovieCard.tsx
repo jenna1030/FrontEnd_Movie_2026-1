@@ -1,10 +1,10 @@
-import starIcon from '../../assets/star-icon.svg'
-import { IMAGE_BASE_URL } from '../../constants/movie'
-import type { Movie } from '../../types/movie'
-import './MovieCard.css'
+import starIcon from "../../assets/star-icon.svg";
+import { IMAGE_BASE_URL } from "../../constants/movie";
+import type { Movie } from "../../types/movie";
+import "./MovieCard.css";
 
 interface MovieCardProps {
-  movie: Movie
+  movie: Movie;
 }
 
 function MovieCard({ movie }: MovieCardProps) {
@@ -26,7 +26,7 @@ function MovieCard({ movie }: MovieCardProps) {
         <img className="movie-card-star" src={starIcon} alt="별점" />
       </div>
     </div>
-  )
+  );
 }
 
-export default MovieCard
+export default MovieCard;
