@@ -4,6 +4,12 @@ import heartOutlineIcon from "../../assets/heart-outline.svg";
 import starIcon from "../../assets/star-icon.svg";
 import { IMAGE_BASE_URL } from "../../constants/movie";
 import type { MovieDetail } from "../../types/movie";
+import {
+  getMovieRating,
+  isWantedMovie,
+  saveRatedMovie,
+  toggleWantedMovie,
+} from "../../utils/storage";
 import "./MovieModal.css";
 
 interface MovieModalProps {
@@ -12,16 +18,14 @@ interface MovieModalProps {
 }
 
 function MovieModal({ movie, onClose }: MovieModalProps) {
-  // 모달 구현 추가: 사용자가 선택한 내 별점을 기억합니다. 처음에는 아직 선택 전이라 0입니다.
-  const [userRating, setUserRating] = useState(0);
-  // 찜 기능 추가: 하트 버튼을 눌렀는지 기억합니다. 새로고침하면 초기화되는 간단한 state입니다.
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [userRating, setUserRating] = useState(getMovieRating(movie.id));
+  const [isFavorite, setIsFavorite] = useState(isWantedMovie(movie.id));
 
-  // 모달 구현 추가: 상세 API의 genres 배열을 화면에 보여줄 문자열로 바꿉니다.
   const genreText = movie.genres.map((genre) => genre.name).join(", ");
   const posterSrc = movie.poster_path
     ? IMAGE_BASE_URL + movie.poster_path
     : "/favicon.svg";
+
   const ratingMessage =
     userRating === 0
       ? "평가해주세요"
@@ -30,6 +34,16 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
             userRating
           ]
         }`;
+
+  function handleFavoriteClick() {
+    const nextIsFavorite = toggleWantedMovie(movie);
+    setIsFavorite(nextIsFavorite);
+  }
+
+  function handleRatingClick(starNumber: number) {
+    setUserRating(starNumber);
+    saveRatedMovie(movie, starNumber);
+  }
 
   return (
     <div className="movie-modal-backdrop">
@@ -47,7 +61,11 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
         </header>
 
         <div className="movie-modal-content">
-          <img className="movie-modal-poster" src={posterSrc} alt={movie.title} />
+          <img
+            className="movie-modal-poster"
+            src={posterSrc}
+            alt={movie.title}
+          />
 
           <div className="movie-modal-info">
             <div className="movie-modal-top-line">
@@ -60,7 +78,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
               <button
                 className="movie-modal-favorite"
                 type="button"
-                onClick={() => setIsFavorite((prevIsFavorite) => !prevIsFavorite)}
+                onClick={handleFavoriteClick}
                 aria-label={isFavorite ? "찜 취소" : "찜하기"}
               >
                 <img
@@ -76,19 +94,21 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
 
             <div className="movie-modal-rating-box">
               <span>내 별점</span>
+
               <div className="movie-modal-stars" aria-label="내 별점 선택">
                 {[1, 2, 3, 4, 5].map((starNumber) => (
                   <button
                     key={starNumber}
                     className="movie-modal-star-button"
                     type="button"
-                    onClick={() => setUserRating(starNumber)}
+                    onClick={() => handleRatingClick(starNumber)}
                     aria-label={`${starNumber * 2}점`}
                   >
                     {starNumber <= userRating ? "★" : "☆"}
                   </button>
                 ))}
               </div>
+
               <span>{ratingMessage}</span>
             </div>
           </div>

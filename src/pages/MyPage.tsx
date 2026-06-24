@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Header from "../components/Header/Header";
+import MovieModal from "../components/MovieModal/MovieModal";
+import { fetchMovieDetail } from "../apis/movieDetailApi";
+import { IMAGE_BASE_URL } from "../constants/movie";
+import type { MovieDetail } from "../types/movie";
+import { useNavigate } from "react-router-dom";
+import { getLoginCookie } from "../utils/cookie";
+import { getRatedMovies, getWantedMovies } from "../utils/storage";
 import "./MyPage.css";
 
 type SavedMovie = {
@@ -8,26 +15,45 @@ type SavedMovie = {
   title: string;
   poster_path: string | null;
   vote_average: number;
+  user_rating?: number;
 };
 
 type ActiveTab = "rated" | "wanted";
 
-const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-
 function MyPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<ActiveTab>("rated");
   const [ratedMovies, setRatedMovies] = useState<SavedMovie[]>([]);
   const [wantedMovies, setWantedMovies] = useState<SavedMovie[]>([]);
-
+  const [selectedMovie, setSelectedMovie] = useState<MovieDetail | null>(null);
+  const [nickname, setNickname] = useState("");
   useEffect(() => {
-    const savedRatedMovies = localStorage.getItem("ratedMovies");
-    const savedWantedMovies = localStorage.getItem("wantedMovies");
+    const loginUser = getLoginCookie();
 
-    setRatedMovies(savedRatedMovies ? JSON.parse(savedRatedMovies) : []);
-    setWantedMovies(savedWantedMovies ? JSON.parse(savedWantedMovies) : []);
-  }, []);
+    if (!loginUser) {
+      alert("로그인이 필요한 페이지입니다.");
+      navigate("/login");
+      return;
+    }
+
+    setRatedMovies(getRatedMovies());
+    setWantedMovies(getWantedMovies());
+    setNickname(loginUser);
+  }, [navigate]);
 
   const currentMovies = activeTab === "rated" ? ratedMovies : wantedMovies;
+
+  async function handleMovieClick(movieId: number) {
+    const movieDetail = await fetchMovieDetail(movieId);
+    setSelectedMovie(movieDetail);
+  }
+
+  function handleCloseModal() {
+    setSelectedMovie(null);
+
+    setRatedMovies(getRatedMovies());
+    setWantedMovies(getWantedMovies());
+  }
 
   return (
     <>
@@ -42,7 +68,7 @@ function MyPage() {
           <div className="profile-image">개인 사진</div>
 
           <div className="profile-info">
-            <PageTitle>닉네임</PageTitle>
+            <PageTitle>{nickname}</PageTitle>
             <p>
               평가 영화 수 :{" "}
               <span className="highlight">{ratedMovies.length}</span>
@@ -79,7 +105,11 @@ function MyPage() {
           ) : (
             <div className="mypage-movie-grid">
               {currentMovies.map((movie) => (
-                <article key={movie.id} className="mypage-movie-card">
+                <article
+                  key={movie.id}
+                  className="mypage-movie-card"
+                  onClick={() => handleMovieClick(movie.id)}
+                >
                   {movie.poster_path ? (
                     <img
                       src={`${IMAGE_BASE_URL}${movie.poster_path}`}
@@ -93,7 +123,9 @@ function MyPage() {
                   <strong className="mypage-movie-title">{movie.title}</strong>
 
                   <p className="mypage-movie-rating">
-                    {movie.vote_average.toFixed(1)}
+                    {activeTab === "rated" && movie.user_rating
+                      ? `${movie.user_rating * 2}점`
+                      : movie.vote_average.toFixed(1)}
                     <span className="star">★</span>
                   </p>
                 </article>
@@ -102,6 +134,10 @@ function MyPage() {
           )}
         </section>
       </main>
+
+      {selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
+      )}
     </>
   );
 }

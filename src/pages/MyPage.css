@@ -158,3 +158,12 @@
     gap: 32px 20px;
   }
 }
+
+.mypage-movie-card {
+  min-width: 0;
+  cursor: pointer;
+}
+
+.mypage-movie-card:hover {
+  transform: translateY(-4px);
+}

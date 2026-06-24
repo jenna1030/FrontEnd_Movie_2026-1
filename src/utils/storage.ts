@@ -1,25 +1,42 @@
-import type { Movie } from "../types/movie";
+import type { Movie, MovieDetail } from "../types/movie";
+import { getLoginCookie } from "./cookie";
 
-const FAVORITE_MOVIES_KEY = "favoriteMovies";
+const WANTED_MOVIES_KEY = "wantedMovies";
+const RATED_MOVIES_KEY = "ratedMovies";
 
-export type StoredMovie = {
+export type SavedMovie = {
   id: number;
   title: string;
   poster_path: string | null;
   vote_average: number;
+  user_rating?: number;
 };
 
-function convertMovie(movie: Movie): StoredMovie {
+type StorageMovie = Movie | MovieDetail;
+
+function getUserStorageKey(baseKey: string) {
+  const loginUser = getLoginCookie();
+
+  if (!loginUser) {
+    return baseKey;
+  }
+
+  return `${baseKey}_${loginUser}`;
+}
+
+function convertMovie(movie: StorageMovie, userRating?: number): SavedMovie {
   return {
     id: movie.id,
     title: movie.title,
     poster_path: movie.poster_path,
     vote_average: movie.vote_average,
+    user_rating: userRating,
   };
 }
 
-export function getFavoriteMovies(): StoredMovie[] {
-  const savedMovies = localStorage.getItem(FAVORITE_MOVIES_KEY);
+function getMovies(key: string): SavedMovie[] {
+  const userKey = getUserStorageKey(key);
+  const savedMovies = localStorage.getItem(userKey);
 
   if (!savedMovies) {
     return [];
@@ -28,27 +45,60 @@ export function getFavoriteMovies(): StoredMovie[] {
   return JSON.parse(savedMovies);
 }
 
-export function saveFavoriteMovie(movie: Movie) {
-  const favoriteMovies = getFavoriteMovies();
-  const isAlreadySaved = favoriteMovies.some(
-    (favoriteMovie) => favoriteMovie.id === movie.id,
+function saveMovies(key: string, movies: SavedMovie[]) {
+  const userKey = getUserStorageKey(key);
+  localStorage.setItem(userKey, JSON.stringify(movies));
+}
+
+export function getWantedMovies() {
+  return getMovies(WANTED_MOVIES_KEY);
+}
+
+export function isWantedMovie(movieId: number) {
+  return getWantedMovies().some((movie) => movie.id === movieId);
+}
+
+export function toggleWantedMovie(movie: StorageMovie) {
+  const wantedMovies = getWantedMovies();
+  const isAlreadyWanted = wantedMovies.some(
+    (wantedMovie) => wantedMovie.id === movie.id,
   );
 
-  if (isAlreadySaved) {
-    return;
+  if (isAlreadyWanted) {
+    const filteredMovies = wantedMovies.filter(
+      (wantedMovie) => wantedMovie.id !== movie.id,
+    );
+
+    saveMovies(WANTED_MOVIES_KEY, filteredMovies);
+    return false;
   }
 
-  const newFavoriteMovies = [...favoriteMovies, convertMovie(movie)];
-  localStorage.setItem(FAVORITE_MOVIES_KEY, JSON.stringify(newFavoriteMovies));
+  saveMovies(WANTED_MOVIES_KEY, [...wantedMovies, convertMovie(movie)]);
+  return true;
 }
 
-export function removeFavoriteMovie(movieId: number) {
-  const favoriteMovies = getFavoriteMovies();
-  const filteredMovies = favoriteMovies.filter((movie) => movie.id !== movieId);
-
-  localStorage.setItem(FAVORITE_MOVIES_KEY, JSON.stringify(filteredMovies));
+export function getRatedMovies() {
+  return getMovies(RATED_MOVIES_KEY);
 }
 
-export function isFavoriteMovie(movieId: number) {
-  return getFavoriteMovies().some((movie) => movie.id === movieId);
+export function saveRatedMovie(movie: StorageMovie, userRating: number) {
+  const ratedMovies = getRatedMovies();
+  const filteredMovies = ratedMovies.filter(
+    (ratedMovie) => ratedMovie.id !== movie.id,
+  );
+
+  saveMovies(RATED_MOVIES_KEY, [
+    ...filteredMovies,
+    convertMovie(movie, userRating),
+  ]);
+}
+
+export function isRatedMovie(movieId: number) {
+  return getRatedMovies().some((movie) => movie.id === movieId);
+}
+
+export function getMovieRating(movieId: number) {
+  const ratedMovie = getRatedMovies().find((movie) => movie.id === movieId);
+
+  return ratedMovie?.user_rating ?? 0;
 }
