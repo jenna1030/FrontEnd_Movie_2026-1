@@ -1,15 +1,12 @@
 import type { FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import logoImg from "../../assets/Logo.png";
 import "./Header.css";
 
 interface HeaderProps {
-  // 기존 검색 방식과 새 검색 방식을 둘 다 받을 수 있게 optional로 둡니다.
   onSearch?: (keyword: string) => void;
-  // 모달 구현 추가: 현재 App.tsx에서 내려주는 검색창 값입니다.
   searchValue?: string;
-  // 모달 구현 추가: 검색창 입력값이 바뀔 때 App state를 바꿉니다.
   onSearchValueChange?: (value: string) => void;
-  // 모달 구현 추가: 검색 form 제출 시 App의 검색 함수를 실행합니다.
   onSearchSubmit?: () => void;
 }
 
@@ -19,6 +16,8 @@ function Header({
   onSearchValueChange,
   onSearchSubmit,
 }: HeaderProps) {
+  const navigate = useNavigate();
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -34,6 +33,7 @@ function Header({
   return (
     <header className="header">
       <img src={logoImg} alt="Movie Beginner Logo" />
+
       <form className="search-box" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -59,6 +59,14 @@ function Header({
           </svg>
         </button>
       </form>
+
+      <button
+        type="button"
+        className="mypage-button"
+        onClick={() => navigate("/mypage")}
+      >
+        마이페이지
+      </button>
     </header>
   );
 }
