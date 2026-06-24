@@ -143,3 +143,24 @@
 .dropdown-item.logout {
   color: #ff4d4d;
 }
+
+.logo-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.logo-button img {
+  display: block;
+}
+
+.logo-button:hover {
+  background: transparent;
+}
+
+.logo-button:focus {
+  outline: none;
+}

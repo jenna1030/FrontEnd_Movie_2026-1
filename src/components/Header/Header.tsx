@@ -60,8 +60,14 @@ function Header({
 
   return (
     <header className="header">
-      <img src={logoImg} alt="Movie Beginner Logo" />
-
+      <button
+        type="button"
+        className="logo-button"
+        onClick={() => navigate("/")}
+        aria-label="홈으로 이동"
+      >
+        <img src={logoImg} alt="Movie Beginner Logo" />
+      </button>
       <form className="search-box" onSubmit={handleSubmit}>
         <input
           type="text"
