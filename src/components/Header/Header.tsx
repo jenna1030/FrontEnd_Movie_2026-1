@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../../assets/Logo.png";
 import myPageIcon from "../../assets/myPageIcon.png";
+import { getLoginCookie, removeLoginCookie } from "../../utils/cookie";
 import "./Header.css";
 
 interface HeaderProps {
@@ -18,7 +19,9 @@ function Header({
   onSearchSubmit,
 }: HeaderProps) {
   const navigate = useNavigate();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loginUser, setLoginUser] = useState(getLoginCookie());
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,9 +35,27 @@ function Header({
     onSearch?.(searchValue);
   }
 
+  function handleGoLogin() {
+    setIsMenuOpen(false);
+    navigate("/login");
+  }
+
+  function handleGoSignup() {
+    setIsMenuOpen(false);
+    alert("회원가입 기능은 아직 준비 중입니다.");
+  }
+
   function handleGoMyPage() {
     setIsMenuOpen(false);
     navigate("/mypage");
+  }
+
+  function handleLogout() {
+    removeLoginCookie();
+    setLoginUser(null);
+    setIsMenuOpen(false);
+    alert("로그아웃되었습니다.");
+    navigate("/");
   }
 
   return (
@@ -48,6 +69,7 @@ function Header({
           value={searchValue}
           onChange={(event) => onSearchValueChange?.(event.target.value)}
         />
+
         <button type="submit" className="search-btn" aria-label="검색">
           <svg
             width="20"
@@ -79,16 +101,51 @@ function Header({
 
         {isMenuOpen && (
           <div className="mypage-dropdown">
-            <button type="button" className="dropdown-item logout">
-              로그아웃
-            </button>
-            <button
-              type="button"
-              className="dropdown-item"
-              onClick={handleGoMyPage}
-            >
-              마이페이지
-            </button>
+            {loginUser ? (
+              <>
+                <button
+                  type="button"
+                  className="dropdown-item logout"
+                  onClick={handleLogout}
+                >
+                  로그아웃
+                </button>
+
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={handleGoMyPage}
+                >
+                  마이페이지
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={handleGoLogin}
+                >
+                  로그인
+                </button>
+
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={handleGoSignup}
+                >
+                  회원가입
+                </button>
+
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={handleGoMyPage}
+                >
+                  마이페이지
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
