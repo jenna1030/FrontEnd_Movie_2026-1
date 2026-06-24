@@ -36,17 +36,25 @@
 }
 
 .mypage-button {
+  width: 44px;
+  height: 44px;
   margin-left: 12px;
-  padding: 10px 16px;
+  padding: 0;
   border: none;
-  border-radius: 4px;
-  background-color: #ffffff;
-  color: #000000;
-  font-weight: 700;
+  border-radius: 50%;
+  background-color: transparent;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mypage-button img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
 }
 
 .mypage-button:hover {
-  background-color: #ff4d5a;
-  color: #ffffff;
+  opacity: 0.8;
 }

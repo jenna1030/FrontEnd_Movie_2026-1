@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../../assets/Logo.png";
+import myPageIcon from "../../assets/myPageIcon.png";
 import "./Header.css";
 
 interface HeaderProps {
@@ -64,8 +65,9 @@ function Header({
         type="button"
         className="mypage-button"
         onClick={() => navigate("/mypage")}
+        aria-label="마이페이지"
       >
-        마이페이지
+        <img src={myPageIcon} alt="마이페이지" />
       </button>
     </header>
   );
