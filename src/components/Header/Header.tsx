@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../../assets/Logo.png";
 import myPageIcon from "../../assets/myPageIcon.png";
@@ -18,6 +18,7 @@ function Header({
   onSearchSubmit,
 }: HeaderProps) {
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +30,11 @@ function Header({
 
     if (searchValue.trim() === "") return;
     onSearch?.(searchValue);
+  }
+
+  function handleGoMyPage() {
+    setIsMenuOpen(false);
+    navigate("/mypage");
   }
 
   return (
@@ -61,14 +67,31 @@ function Header({
         </button>
       </form>
 
-      <button
-        type="button"
-        className="mypage-button"
-        onClick={() => navigate("/mypage")}
-        aria-label="마이페이지"
-      >
-        <img src={myPageIcon} alt="마이페이지" />
-      </button>
+      <div className="mypage-menu-wrapper">
+        <button
+          type="button"
+          className="mypage-button"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          aria-label="마이페이지 메뉴"
+        >
+          <img src={myPageIcon} alt="마이페이지" />
+        </button>
+
+        {isMenuOpen && (
+          <div className="mypage-dropdown">
+            <button type="button" className="dropdown-item logout">
+              로그아웃
+            </button>
+            <button
+              type="button"
+              className="dropdown-item"
+              onClick={handleGoMyPage}
+            >
+              마이페이지
+            </button>
+          </div>
+        )}
+      </div>
     </header>
   );
 }
