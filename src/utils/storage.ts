@@ -105,3 +105,11 @@ export function getMovieRating(movieId: number) {
 
   return ratedMovie?.user_rating ?? 0;
 }
+export function removeRatedMovie(movieId: number) {
+  const ratedMovies = getRatedMovies();
+  const filteredMovies = ratedMovies.filter(
+    (ratedMovie) => ratedMovie.id !== movieId,
+  );
+
+  saveMovies(RATED_MOVIES_KEY, filteredMovies);
+}

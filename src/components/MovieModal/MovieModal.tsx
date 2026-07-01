@@ -8,10 +8,12 @@ import type { MovieDetail } from "../../types/movie";
 import {
   getMovieRating,
   isWantedMovie,
+  removeRatedMovie,
   saveRatedMovie,
   toggleWantedMovie,
 } from "../../utils/storage";
 import "./MovieModal.css";
+import { useToastStore } from "../../stores/toastStore";
 
 interface MovieModalProps {
   movie: MovieDetail;
@@ -24,7 +26,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
   const updateFavoriteGenres = usePreferenceStore(
     (state) => state.updateFavoriteGenres,
   );
-
+  const showToast = useToastStore((state) => state.showToast);
   const genreText = movie.genres.map((genre) => genre.name).join(", ");
   const posterSrc = movie.poster_path
     ? IMAGE_BASE_URL + movie.poster_path
@@ -43,11 +45,22 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
     const nextIsFavorite = toggleWantedMovie(movie);
     setIsFavorite(nextIsFavorite);
     updateFavoriteGenres();
-  }
 
+    showToast(
+      nextIsFavorite ? "좋아요를 눌렀어요!" : "좋아요를 취소했어요!",
+      "favorite",
+    );
+  }
   function handleRatingClick(starNumber: number) {
+    if (userRating === starNumber) {
+      setUserRating(0);
+      showToast("별점을 취소했어요!", "review");
+      return;
+    }
+
     setUserRating(starNumber);
     saveRatedMovie(movie, starNumber);
+    showToast("별점을 남겼어요!", "review");
   }
 
   return (
