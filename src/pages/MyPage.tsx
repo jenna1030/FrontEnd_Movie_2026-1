@@ -7,16 +7,13 @@ import { IMAGE_BASE_URL } from "../constants/movie";
 import type { MovieDetail } from "../types/movie";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/userStore";
-import { getRatedMovies, getWantedMovies } from "../utils/storage";
+import {
+  getRatedMovies,
+  getWantedMovies,
+  type SavedMovie,
+} from "../utils/storage";
+import { usePreferenceStore } from "../stores/preferenceStore";
 import "./MyPage.css";
-
-type SavedMovie = {
-  id: number;
-  title: string;
-  poster_path: string | null;
-  vote_average: number;
-  user_rating?: number;
-};
 
 type ActiveTab = "rated" | "wanted";
 
@@ -28,6 +25,11 @@ function MyPage() {
   const [selectedMovie, setSelectedMovie] = useState<MovieDetail | null>(null);
   const nickname = useUserStore((state) => state.nickname);
   const initializeUser = useUserStore((state) => state.initializeUser);
+
+  const favoriteGenres = usePreferenceStore((state) => state.favoriteGenres);
+  const updateFavoriteGenres = usePreferenceStore(
+    (state) => state.updateFavoriteGenres,
+  );
   useEffect(() => {
     initializeUser();
 
@@ -41,8 +43,8 @@ function MyPage() {
 
     setRatedMovies(getRatedMovies());
     setWantedMovies(getWantedMovies());
-  }, [initializeUser, navigate]);
-
+    updateFavoriteGenres();
+  }, [initializeUser, navigate, updateFavoriteGenres]);
   const currentMovies = activeTab === "rated" ? ratedMovies : wantedMovies;
 
   async function handleMovieClick(movieId: number) {
@@ -55,8 +57,8 @@ function MyPage() {
 
     setRatedMovies(getRatedMovies());
     setWantedMovies(getWantedMovies());
+    updateFavoriteGenres();
   }
-
   return (
     <>
       <Header
@@ -75,7 +77,12 @@ function MyPage() {
               평가 영화 수 :{" "}
               <span className="highlight">{ratedMovies.length}</span>
             </p>
-            <p>선호 장르 : 공포, 액션, 로맨스</p>
+            <p>
+              선호 장르 :{" "}
+              {favoriteGenres.length > 0
+                ? favoriteGenres.join(", ")
+                : "좋아요한 영화가 아직 없습니다"}
+            </p>
           </div>
         </section>
 

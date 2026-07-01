@@ -3,6 +3,7 @@ import heartFilledIcon from "../../assets/heart-filled.svg";
 import heartOutlineIcon from "../../assets/heart-outline.svg";
 import starIcon from "../../assets/star-icon.svg";
 import { IMAGE_BASE_URL } from "../../constants/movie";
+import { usePreferenceStore } from "../../stores/preferenceStore";
 import type { MovieDetail } from "../../types/movie";
 import {
   getMovieRating,
@@ -20,6 +21,9 @@ interface MovieModalProps {
 function MovieModal({ movie, onClose }: MovieModalProps) {
   const [userRating, setUserRating] = useState(getMovieRating(movie.id));
   const [isFavorite, setIsFavorite] = useState(isWantedMovie(movie.id));
+  const updateFavoriteGenres = usePreferenceStore(
+    (state) => state.updateFavoriteGenres,
+  );
 
   const genreText = movie.genres.map((genre) => genre.name).join(", ");
   const posterSrc = movie.poster_path
@@ -38,6 +42,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
   function handleFavoriteClick() {
     const nextIsFavorite = toggleWantedMovie(movie);
     setIsFavorite(nextIsFavorite);
+    updateFavoriteGenres();
   }
 
   function handleRatingClick(starNumber: number) {

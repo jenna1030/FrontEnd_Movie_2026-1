@@ -26,7 +26,6 @@ function getUserStorageKey(baseKey: string) {
 
   return `${baseKey}_${loginUser}`;
 }
-
 function convertMovie(movie: StorageMovie, userRating?: number): SavedMovie {
   return {
     id: movie.id,
