@@ -6,7 +6,7 @@ import { fetchMovieDetail } from "../apis/movieDetailApi";
 import { IMAGE_BASE_URL } from "../constants/movie";
 import type { MovieDetail } from "../types/movie";
 import { useNavigate } from "react-router-dom";
-import { getLoginCookie } from "../utils/cookie";
+import { useUserStore } from "../stores/userStore";
 import { getRatedMovies, getWantedMovies } from "../utils/storage";
 import "./MyPage.css";
 
@@ -26,9 +26,12 @@ function MyPage() {
   const [ratedMovies, setRatedMovies] = useState<SavedMovie[]>([]);
   const [wantedMovies, setWantedMovies] = useState<SavedMovie[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieDetail | null>(null);
-  const [nickname, setNickname] = useState("");
+  const nickname = useUserStore((state) => state.nickname);
+  const initializeUser = useUserStore((state) => state.initializeUser);
   useEffect(() => {
-    const loginUser = getLoginCookie();
+    initializeUser();
+
+    const loginUser = useUserStore.getState().isLoggedIn;
 
     if (!loginUser) {
       alert("로그인이 필요한 페이지입니다.");
@@ -38,8 +41,7 @@ function MyPage() {
 
     setRatedMovies(getRatedMovies());
     setWantedMovies(getWantedMovies());
-    setNickname(loginUser);
-  }, [navigate]);
+  }, [initializeUser, navigate]);
 
   const currentMovies = activeTab === "rated" ? ratedMovies : wantedMovies;
 
