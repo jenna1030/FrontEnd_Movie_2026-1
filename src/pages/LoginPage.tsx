@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header/Header";
-import { setLoginCookie } from "../utils/cookie";
+import { useUserStore } from "../stores/userStore";
 import "./LoginPage.css";
 
 function LoginPage() {
   const [nickname, setNickname] = useState("");
   const navigate = useNavigate();
+  const login = useUserStore((state) => state.login);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -16,7 +17,7 @@ function LoginPage() {
       return;
     }
 
-    setLoginCookie(nickname.trim());
+    login(nickname.trim());
     alert("로그인되었습니다.");
     navigate("/mypage");
   }
