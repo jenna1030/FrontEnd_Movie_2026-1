@@ -19,6 +19,7 @@ export const useUserStore = create<UserState>((set) => ({
 
   login: (nickname) => {
     setLoginCookie(nickname);
+
     set({
       nickname,
       isLoggedIn: true,
@@ -27,6 +28,7 @@ export const useUserStore = create<UserState>((set) => ({
 
   logout: () => {
     removeLoginCookie();
+
     set({
       nickname: "",
       isLoggedIn: false,

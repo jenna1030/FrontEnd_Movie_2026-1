@@ -10,8 +10,11 @@ export type SavedMovie = {
   poster_path: string | null;
   vote_average: number;
   user_rating?: number;
+  genres?: {
+    id: number;
+    name: string;
+  }[];
 };
-
 type StorageMovie = Movie | MovieDetail;
 
 function getUserStorageKey(baseKey: string) {
@@ -31,6 +34,7 @@ function convertMovie(movie: StorageMovie, userRating?: number): SavedMovie {
     poster_path: movie.poster_path,
     vote_average: movie.vote_average,
     user_rating: userRating,
+    genres: "genres" in movie ? movie.genres : [],
   };
 }
 
