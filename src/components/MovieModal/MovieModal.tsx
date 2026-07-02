@@ -54,6 +54,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
   function handleRatingClick(starNumber: number) {
     if (userRating === starNumber) {
       setUserRating(0);
+      removeRatedMovie(movie.id);
       showToast("별점을 취소했어요!", "review");
       return;
     }
@@ -62,7 +63,6 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
     saveRatedMovie(movie, starNumber);
     showToast("별점을 남겼어요!", "review");
   }
-
   return (
     <div className="movie-modal-backdrop">
       <section className="movie-modal">
