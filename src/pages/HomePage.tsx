@@ -83,8 +83,13 @@ function HomePage() {
     setSelectedMovie(null);
   }
 
-  const movies = data?.pages.flat() ?? [];
-
+  const movies =
+    data?.pages
+      .flat()
+      .filter(
+        (movie, index, array) =>
+          array.findIndex((item) => item.id === movie.id) === index,
+      ) ?? [];
   const movieListTitle = searchKeyword
     ? `"${searchKeyword}" 검색 결과`
     : "지금 인기있는 영화";
