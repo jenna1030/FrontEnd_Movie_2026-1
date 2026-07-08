@@ -1,9 +1,13 @@
+.movies {
+  justify-items: center;
+}
 .movie-card {
   width: 182px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  /* 모달 구현 추가: 카드가 클릭 가능하다는 것을 보여줍니다. */
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -13,6 +17,7 @@
   border-radius: 15px;
   object-fit: cover;
   background-color: #222;
+  display: block;
 }
 
 .movie-card-title {

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { fetchPopularMovies } from "../apis/popularMovieApi";
 import { searchMovies } from "../apis/searchMovieApi";
@@ -12,47 +12,66 @@ import type { Movie, MovieDetail } from "../types/movie";
 import "../App.css";
 
 function HomePage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedMovie, setSelectedMovie] = useState<MovieDetail | null>(null);
+  const observerTargetRef = useRef<HTMLDivElement | null>(null);
 
   const {
-    data: popularMovies = [],
+    data,
     isPending,
     isError,
     error,
-  } = useQuery({
-    queryKey: ["movies", "popular", 1],
-    queryFn: () => fetchPopularMovies(1),
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["movies", searchKeyword || "popular"],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      searchKeyword
+        ? searchMovies(searchKeyword, pageParam)
+        : fetchPopularMovies(pageParam),
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length === 0) {
+        return undefined;
+      }
+
+      return allPages.length + 1;
+    },
   });
 
-  async function handleLoadMore() {
-    const nextPage = page + 1;
+  useEffect(() => {
+    const observerTarget = observerTargetRef.current;
 
-    const nextMovies = searchKeyword
-      ? await searchMovies(searchKeyword, nextPage)
-      : await fetchPopularMovies(nextPage);
+    if (!observerTarget || !hasNextPage || isFetchingNextPage) {
+      return;
+    }
 
-    setMovies((prevMovies) => [
-      ...(prevMovies.length > 0 ? prevMovies : popularMovies),
-      ...nextMovies,
-    ]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
 
-    setPage(nextPage);
-  }
+        if (firstEntry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "200px",
+        threshold: 0,
+      },
+    );
 
-  async function handleSearchSubmit() {
+    observer.observe(observerTarget);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  function handleSearchSubmit() {
     const trimmedKeyword = searchInput.trim();
-
-    const firstPageMovies = trimmedKeyword
-      ? await searchMovies(trimmedKeyword, 1)
-      : await fetchPopularMovies(1);
-
     setSearchKeyword(trimmedKeyword);
-    setMovies(firstPageMovies);
-    setPage(1);
   }
 
   async function handleMovieClick(movieId: number) {
@@ -64,11 +83,11 @@ function HomePage() {
     setSelectedMovie(null);
   }
 
+  const movies = data?.pages.flat() ?? [];
+
   const movieListTitle = searchKeyword
     ? `"${searchKeyword}" 검색 결과`
     : "지금 인기있는 영화";
-
-  const displayedMovies = movies.length > 0 ? movies : popularMovies;
 
   if (isPending) {
     return <p>영화 목록을 불러오는 중입니다...</p>;
@@ -88,11 +107,15 @@ function HomePage() {
 
       <main className="main-content">
         <MovieList
-          movies={displayedMovies}
+          movies={movies}
           title={movieListTitle}
-          onLoadMore={handleLoadMore}
           onMovieClick={handleMovieClick}
         />
+
+        <div ref={observerTargetRef} className="infinite-scroll-target" />
+        {isFetchingNextPage && (
+          <p className="loading-message">영화를 더 불러오는 중입니다...</p>
+        )}
       </main>
 
       {selectedMovie && (
