@@ -26,6 +26,18 @@ function MyPage() {
   const nickname = useUserStore((state) => state.nickname);
   const initializeUser = useUserStore((state) => state.initializeUser);
 
+  /*const { nickname, initializeUser } = useUserStore((state) => ({
+  nickname: state.nickname,
+  initializeUser: state.initializeUser,
+}));
+
+둘중 하나만 변경되어도 연관된 부분의 리랜더링이 발생가능 
+그래서 나눴을 때는 방지 가능
+이를 방지하고싶으면 useShallow라는 훅이 따로 있어서 이를 사용하면 둘중 하나가 바뀌었을 때 
+바뀐 것만 적용하는게 있음
+
+*/
+
   const favoriteGenres = usePreferenceStore((state) => state.favoriteGenres);
   const updateFavoriteGenres = usePreferenceStore(
     (state) => state.updateFavoriteGenres,
